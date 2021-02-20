@@ -1,9 +1,13 @@
-import { displayLog } from './utils';
+import { displayLogInScreen } from './utils';
+import { Observable } from 'rxjs';
 
 export default () => {
-    /** start coding */
+    // 🐷 DEPRECATED 🐷 const hola = Observable.create(function(observer) {
+    const hola = new Observable((observer) => {
+        observer.next("Hello");
+        setTimeout(() => { observer.next("How you doing?"); }, 2 * 1000);
+        observer.next("world");
+    });
 
-
-
-    /** end coding */
+    const subscribe = hola.subscribe(evt => displayLogInScreen(evt));
 }
