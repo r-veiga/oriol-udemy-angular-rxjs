@@ -1,5 +1,5 @@
 import { displayLogInScreen } from './utils';
-import { interval } from "rxjs";
+import { interval, timer } from "rxjs";
 
 export default () => {
 
@@ -11,5 +11,9 @@ export default () => {
     
     // 🐷🐷 timer() es como setTimeout(), pero mejor
     // setTimeout(() => { subscription.unsubscribe(); }, 3 * 1000);  
-    timer(3 *1000).subscribe(() => subscription.unsubscribe());
+    timer(3 * 1000).subscribe(() => subscription.unsubscribe());
+
+    const source2 = timer(4 * 1000, 100); // 🐷🐷 delay de 4 segundos antes de lanzar cada 0.1 segundos
+    const subscription2 = source2.subscribe(data => displayLogInScreen(`2 - ${data}`));
+    timer(6 * 1000).subscribe( () => subscription2.unsubscribe() );
 }
