@@ -8,6 +8,8 @@ export default () => {
 
     const source = interval(500);
     const subscription = source.subscribe(data => displayLogInScreen(data));
-    setTimeout(() => { subscription.unsubscribe(); }, 3 * 1000);
-
+    
+    // 🐷🐷 timer() es como setTimeout(), pero mejor
+    // setTimeout(() => { subscription.unsubscribe(); }, 3 * 1000);  
+    timer(3 *1000).subscribe(() => subscription.unsubscribe());
 }
