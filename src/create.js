@@ -4,8 +4,12 @@ import { Observable } from 'rxjs';
 export default () => {
     const hola = new Observable((observer) => {
         observer.next("Hello");
-        setTimeout(() => { observer.next("How you doing?"); }, 2 * 1000); // 🐷🐷 
         observer.next("world");
+        setTimeout(() => { 
+            observer.next("How you doing?"); 
+            observer.complete(); // 🐷🐷
+        }, 2 * 1000); 
+        observer.next("Everything's good?");
     });
 
     const observer = {
@@ -14,11 +18,20 @@ export default () => {
         complete: () => displayLogInScreen("[DONE]")
     }
 
-    // 🐷🐷 Elimino subscripción desde el Observer ".unsubscribe()" 
-    // 🐷🐷 y no desde el Observable ".complete()".
+    // 🐷🐷 Creo dos Observers para el mismo Observable:
+    // 🐷🐷 (1) al primero: 
+    // 🐷🐷     * le hago unsubscribe 
+    // 🐷🐷     * el mensaje asíncrono "How you doing?" no se muestra
+    // 🐷🐷 (2) al segundo: 
+    // 🐷🐷     * no le hago unsubscribe, dejo que acabe el Observable
+    // 🐷🐷     * el mensaje asíncrono "How you doing?" sí se muestra
     // 🐷🐷 
-    // 🐷🐷 El mensaje asíncrono "How you doing?" no se muestra
-    // 🐷🐷 porque se ha ejecutado ".complete()" antes, debido al lag de 2 segundos
-    const subscribe = hola.subscribe(observer);
-    subscribe.unsubscribe(); // 🐷🐷 
+    // 🐷🐷 Se trata de "Cold Observables".
+    // 🐷🐷 
+    // 🐷🐷 Ambos se lanzan consecutivamente y de manera asíncrona. 
+    // 🐷🐷 Ojo con esto, porque por la velocidad de ejecución 
+    // 🐷🐷 parece que se han ejecutado síncronamente, pero NO.
+    const subscribe1 = hola.subscribe(observer); // 🐷🐷 
+    const subscribe2 = hola.subscribe(observer); // 🐷🐷 
+    subscribe1.unsubscribe();                    // 🐷🐷 
 }
