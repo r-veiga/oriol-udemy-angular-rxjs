@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
 import { fromEvent, BehaviorSubject, Subject } from 'rxjs';
-import { map, sampleTime, tap } from 'rxjs/operators';
+import { auditTime, map, sampleTime, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -16,6 +16,8 @@ export default () => {
     // 🐷🐷   (b) texto que muestre el porcentaje en formato "nn%"
     // 🐷🐷 
     // 🐷🐷 "sampleTime( N )" emite el evento más reciente en el último intervalo periódico de N milisegundos
+    // 🐷🐷 "auditTime( N )" normalmente, muestra un comportamiento bastante similar a "sampleTime(N)". 
+    // 🐷🐷                  Espera a un primer evento y desde ese momento controla N milisegundos y devuelve el último valor del intervalo.
     
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
@@ -29,7 +31,7 @@ export default () => {
     // 🐷🐷 con "sampleTime()" evito tratar todos los eventos y así reduzco el gasto de recursos del sistema 
     const scroll$ = fromEvent(document, 'scroll').pipe(
         tap(evt => console.log("[scroll event]")),          // 🐷🐷 log A TODOS los eventos de scroll disparados
-        sampleTime(50),                                     // 🐷🐷 filtra sólo EL ÚLTIMO evento producido en el intervalo de 50 ms
+        auditTime(50),                                      // 🐷🐷 ÚLTIMO evento producido en el intervalo de 50 ms desde el evento que triggered
         map(() => docElement.scrollTop),
         tap(evt => console.log("[scroll]: ", evt))
     );
