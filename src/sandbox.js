@@ -1,6 +1,6 @@
 import { displayLog as displayLogInScreen } from './utils';
 import { fromEvent } from 'rxjs';
-import { first, last, map, skip, take, takeLast, takeWhile, tap } from 'rxjs/operators';
+import { first, last, map, reduce, skip, take, takeLast, takeWhile, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -11,17 +11,30 @@ export default () => {
     // 🐷🐷 "last()" espera al cierre del stream y devuelve el último elemento 
     // 🐷🐷 "takeLast( N )" espera al cierre del stream y devuelve los últimos N elementos emitidos
     // 🐷🐷 "skip( N )" ignora los N primeros eventos y emite a partir del siguiente 
+    // 🐷🐷 "reduce()" acumulador, que aplica una función a cada elemento y muestra el resultado al cerrar el stream
+    // 🐷🐷            permite un 2º parámetro opcional, seed/semilla para inicializar el acumulador
     
     const grid = document.getElementById('grid');
+
+    const seed_initialAccumulatorValue = { clicks: 0, cells: [] };  // 🐷🐷
+
     const click$ = fromEvent(grid, 'click').pipe(
         map(val => [ 
             Math.floor(val.offsetX/50), 
             Math.floor(val.offsetY/50)
         ]), 
+        takeWhile(([column, row]) => column != 0),          // 🐷🐷
         tap(val => console.log(`celda: ${val}`)),
-        skip(5) // 🐷🐷 salta los 5 primeros eventos
+        reduce(                                             // 🐷🐷
+            (acum, current) => {                            // 🐷🐷
+                    return {                                // 🐷🐷
+                        clicks: acum.clicks + 1,            // 🐷🐷
+                        cells: [...acum.cells, current]     // 🐷🐷
+                    }                                       // 🐷🐷
+                }                                           // 🐷🐷
+                , seed_initialAccumulatorValue )            // 🐷🐷 
     );
 
-    const subscription = click$.subscribe(data => displayLogInScreen(data));
+    const subscription = click$.subscribe(data => displayLogInScreen(`${data.clicks} clicks: ${JSON.stringify(data.cells)}`));
 
 }
