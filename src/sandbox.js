@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
-import { fromEvent, Subject } from 'rxjs';
-import { map, share, tap } from 'rxjs/operators';
+import { fromEvent, BehaviorSubject, Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -25,6 +25,9 @@ export default () => {
     // 🐷🐷    
     // 🐷🐷 Un Observable es a priori COLD. 
     // 🐷🐷 Nota: el operador "share()" permite convertir un Observable en HOT, internamente usa un SUBJECT.   
+    // 🐷🐷    
+    // 🐷🐷 Un BehaviourSubject es un Subject que siempre tiene un estado:
+    // 🐷🐷 o el dado en el constructor o el del último valor emitido.
 
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
@@ -49,15 +52,15 @@ export default () => {
     )
 
     // 🐷🐷 Dos suscripciones al Subject (⚠️ Hot Observable ⚠️):
-    const scrollProgressHot$ = new Subject();                                    // 🐷🐷
-    scrollProgress$.subscribe(scrollProgressHot$);                               // 🐷🐷
+    const scrollProgressHot$ = new BehaviorSubject(0);                           // 🐷🐷 emite el valor 0 como inicial
+    scrollProgress$.subscribe(scrollProgressHot$);                               
     // (1) suscripción a scrollProgress$ para pintar una barra de progreso
     // (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
-    const subscription1 = scrollProgressHot$.subscribe(updateProgressBar);       // 🐷🐷
-    const subscription2 = scrollProgressHot$.subscribe(updatePercentageText);    // 🐷🐷
+    const subscription1 = scrollProgressHot$.subscribe(updateProgressBar);       
+    const subscription2 = scrollProgressHot$.subscribe(updatePercentageText);    
 
-    // 🐷🐷 Hago que se cargue con 0% el texto en la vista, 
-    // 🐷🐷 en lugar de que se quede en blanco hasta el 1er movimiento de scroll
-    // 🐷🐷 emito el valor 0 justo después de establecer la suscripción del texto en la vista
-    scrollProgressHot$.next(0);                                                  // 🐷🐷
+    // 🐷🐷 BehaviorSubject guarda siempre el último valor, 
+    // 🐷🐷 así que lo puedo consultar desde el punto que quiera de mi código 😀
+    console.log("Estado inicial del scroll introducido en el constructor de BehaviorSubject: ", scrollProgressHot$.value);       // 🐷🐷
+                                           
 }
