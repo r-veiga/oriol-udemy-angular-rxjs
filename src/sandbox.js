@@ -16,6 +16,8 @@ export default () => {
     // 🐷🐷 
     // 🐷🐷 El operador "bufferTime()" buffers los valores del Observable fuente para 
     // 🐷🐷 un periodo específico, y transcurrido los emite todos en un array.
+    // 🐷🐷 "bufferTime( X, Y )" => p.ej. bufferTime(50, 1000) => puede usar dos parámetros para definir 
+    // 🐷🐷 un intervalo de captación de valores X, a realizar cada Y tiempo.
     
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
@@ -35,12 +37,11 @@ export default () => {
                 const docHeight = docElement.scrollHeight - docElement.clientHeight;
                 return (evt / docHeight) * 100;
             }), 
-            bufferTime(500),                            // 🐷🐷 
+            bufferTime(50, 1000),                       // 🐷🐷 
             tap(evt => console.log("[buffer]: ", evt))
     )
 
     // suscripción a scrollProgress$ para pintar una barra de progreso
     const subscription = scrollProgress$.subscribe(updateProgressBar);
-
 
 }
