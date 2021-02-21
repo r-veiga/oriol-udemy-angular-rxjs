@@ -1,5 +1,5 @@
 import { updateDisplay } from './utils';
-import { fromEvent } from 'rxjs';
+import { fromEvent, Subject } from 'rxjs';
 import { map, share, tap } from 'rxjs/operators';
 
 export default () => {
@@ -15,15 +15,24 @@ export default () => {
     // 🐷🐷   (a) barra de progreso
     // 🐷🐷   (b) texto que muestre el porcentaje en formato "nn%"
     // 🐷🐷 
-    // 🐷🐷 El operador "share()" hace multicast del Observable.
+    // 🐷🐷 SUBJECT es un observable con tres propiedades muy útiles: 
+    // 🐷🐷   (1) permite hacer multicast de sus valores hacia varios Observers
+    // 🐷🐷       es, por definición, un Hot Observable
+    // 🐷🐷   (2) es un Observer, además de un Observable
+    // 🐷🐷       tiene los métodos subscribe & pipe, además de next, complete & error
+    // 🐷🐷   (3) actúa como un distribuidor, 
+    // 🐷🐷       emite a todos sus Observers los ítems que recibe como Observer a su vez
+    // 🐷🐷    
+    // 🐷🐷 Un Observable es a priori COLD. 
+    // 🐷🐷 Nota: el operador "share()" permite convertir un Observable en HOT, internamente usa un SUBJECT.   
 
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
 
     // Función Observer para actualizar la anchura de la barra de progreso de la vista/html
     const updateProgressBar = (percentage) => { progressBar.style.width = `${percentage}%`; }
-    // 🐷🐷 Función Observer para actualizar el texto de % de progreso de la vista/html
-    const updatePercentageText = (percentage) => { updateDisplay(`${ Math.floor(percentage) } %`); } // 🐷🐷
+    // Función Observer para actualizar el texto de % de progreso de la vista/html
+    const updatePercentageText = (percentage) => { updateDisplay(`${ Math.floor(percentage) } %`); } 
 
     // Observable que devuelve el posicionamiento de scroll (from top) en eventos de scroll
     const scroll$ = fromEvent(document, 'scroll').pipe(
@@ -36,14 +45,15 @@ export default () => {
         map(evt => {
             const docHeight = docElement.scrollHeight - docElement.clientHeight;
             return (evt / docHeight) * 100;
-        }), 
-        share()  // 🐷🐷
+        })  
     )
 
-    // 🐷🐷 Dos suscripciones al mismo Observable (⚠️ Hot Observable ⚠️) gracias a "share()":
-    // 🐷🐷   (1) suscripción a scrollProgress$ para pintar una barra de progreso
-    // 🐷🐷   (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
-    const subscription1 = scrollProgress$.subscribe(updateProgressBar);
-    const subscription2 = scrollProgress$.subscribe(updatePercentageText);  // 🐷🐷
+    // 🐷🐷 Dos suscripciones al Subject (⚠️ Hot Observable ⚠️):
+    const scrollProgressHot = new Subject();                                    // 🐷🐷
+    scrollProgress$.subscribe(scrollProgressHot);                               // 🐷🐷
+    // (1) suscripción a scrollProgress$ para pintar una barra de progreso
+    // (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
+    const subscription1 = scrollProgressHot.subscribe(updateProgressBar);       // 🐷🐷
+    const subscription2 = scrollProgressHot.subscribe(updatePercentageText);    // 🐷🐷
 
 }
