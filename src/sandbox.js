@@ -1,6 +1,6 @@
 import { displayLog as displayLogInScreen } from './utils';
 import { fromEvent } from 'rxjs';
-import { first, last, map, reduce, skip, take, takeLast, takeWhile, tap } from 'rxjs/operators';
+import { first, last, map, reduce, scan, skip, take, takeLast, takeWhile, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -13,6 +13,8 @@ export default () => {
     // 🐷🐷 "skip( N )" ignora los N primeros eventos y emite a partir del siguiente 
     // 🐷🐷 "reduce()" acumulador, que aplica una función a cada elemento y muestra el resultado al cerrar el stream
     // 🐷🐷            permite un 2º parámetro opcional, seed/semilla para inicializar el acumulador
+    // 🐷🐷 "scan()" acumulador, se usa igual que "reduce()", 
+    // 🐷🐷            pero muestra el resultado cada vez que se emite un valor (y no al fin de stream)
     
     const grid = document.getElementById('grid');
 
@@ -25,7 +27,7 @@ export default () => {
         ]), 
         takeWhile(([column, row]) => column != 0),          // 🐷🐷
         tap(val => console.log(`celda: ${val}`)),
-        reduce(                                             // 🐷🐷
+        scan(                                               // 🐷🐷
             (acum, current) => {                            // 🐷🐷
                     return {                                // 🐷🐷
                         clicks: acum.clicks + 1,            // 🐷🐷
