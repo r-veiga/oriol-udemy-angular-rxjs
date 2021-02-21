@@ -49,11 +49,15 @@ export default () => {
     )
 
     // 🐷🐷 Dos suscripciones al Subject (⚠️ Hot Observable ⚠️):
-    const scrollProgressHot = new Subject();                                    // 🐷🐷
-    scrollProgress$.subscribe(scrollProgressHot);                               // 🐷🐷
+    const scrollProgressHot$ = new Subject();                                    // 🐷🐷
+    scrollProgress$.subscribe(scrollProgressHot$);                               // 🐷🐷
     // (1) suscripción a scrollProgress$ para pintar una barra de progreso
     // (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
-    const subscription1 = scrollProgressHot.subscribe(updateProgressBar);       // 🐷🐷
-    const subscription2 = scrollProgressHot.subscribe(updatePercentageText);    // 🐷🐷
+    const subscription1 = scrollProgressHot$.subscribe(updateProgressBar);       // 🐷🐷
+    const subscription2 = scrollProgressHot$.subscribe(updatePercentageText);    // 🐷🐷
 
+    // 🐷🐷 Hago que se cargue con 0% el texto en la vista, 
+    // 🐷🐷 en lugar de que se quede en blanco hasta el 1er movimiento de scroll
+    // 🐷🐷 emito el valor 0 justo después de establecer la suscripción del texto en la vista
+    scrollProgressHot$.next(0);                                                  // 🐷🐷
 }
