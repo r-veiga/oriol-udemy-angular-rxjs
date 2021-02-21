@@ -1,6 +1,6 @@
 import { displayLog as displayLogInScreen } from './utils';
 import { fromEvent } from 'rxjs';
-import { first, last, map, take, takeLast, takeWhile, tap } from 'rxjs/operators';
+import { first, last, map, skip, take, takeLast, takeWhile, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -10,6 +10,7 @@ export default () => {
     // 🐷🐷 "takeWhile( predicate )" en cuanto un elemento no cumpla la condición, se cierra el stream
     // 🐷🐷 "last()" espera al cierre del stream y devuelve el último elemento 
     // 🐷🐷 "takeLast( N )" espera al cierre del stream y devuelve los últimos N elementos emitidos
+    // 🐷🐷 "skip( N )" ignora los N primeros eventos y emite a partir del siguiente 
     
     const grid = document.getElementById('grid');
     const click$ = fromEvent(grid, 'click').pipe(
@@ -17,9 +18,8 @@ export default () => {
             Math.floor(val.offsetX/50), 
             Math.floor(val.offsetY/50)
         ]), 
-        takeWhile(([column, row]) => row > 3),
-        tap(val => console.log(`elemento aceptado por el takeWhile(): ${val}`)),
-        takeLast(3) // 🐷🐷 los últimos 3 valores emitidos por el stream 
+        tap(val => console.log(`celda: ${val}`)),
+        skip(5) // 🐷🐷 salta los 5 primeros eventos
     );
 
     const subscription = click$.subscribe(data => displayLogInScreen(data));
