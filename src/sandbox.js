@@ -15,6 +15,7 @@ export default () => {
     // 🐷🐷   (a) barra de progreso
     // 🐷🐷   (b) texto que muestre el porcentaje en formato "nn%"
     // 🐷🐷 
+    // 🐷🐷 El operador "share()" hace multicast del Observable.
 
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
@@ -35,10 +36,11 @@ export default () => {
         map(evt => {
             const docHeight = docElement.scrollHeight - docElement.clientHeight;
             return (evt / docHeight) * 100;
-        })
+        }), 
+        share()  // 🐷🐷
     )
 
-    // 🐷🐷 Dos suscripciones DISTINTAS al mismo Observable (⚠️ Cold Observable ⚠️):
+    // 🐷🐷 Dos suscripciones al mismo Observable (⚠️ Hot Observable ⚠️) gracias a "share()":
     // 🐷🐷   (1) suscripción a scrollProgress$ para pintar una barra de progreso
     // 🐷🐷   (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
     const subscription1 = scrollProgress$.subscribe(updateProgressBar);
