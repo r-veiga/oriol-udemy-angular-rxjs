@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
 import { fromEvent } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { bufferTime, delay, map, tap } from 'rxjs/operators';
 
 export default () => {
     
@@ -13,6 +13,9 @@ export default () => {
     // 🐷🐷 
     // 🐷🐷 El operador "delay( N )" retrasa la emisión de ítems desde el Observable fuente 
     // 🐷🐷 durante un tiempo N determinado.
+    // 🐷🐷 
+    // 🐷🐷 El operador "bufferTime()" buffers los valores del Observable fuente para 
+    // 🐷🐷 un periodo específico, y transcurrido los emite todos en un array.
     
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
@@ -32,10 +35,11 @@ export default () => {
                 const docHeight = docElement.scrollHeight - docElement.clientHeight;
                 return (evt / docHeight) * 100;
             }), 
-            delay(500) // 🐷🐷 retrasa pintar la barra de progreso 0.5 seg respecto al movimiento de scroll
+            bufferTime(500),                            // 🐷🐷 
+            tap(evt => console.log("[buffer]: ", evt))
     )
 
-    // (1) suscripción a scrollProgress$ para pintar una barra de progreso
+    // suscripción a scrollProgress$ para pintar una barra de progreso
     const subscription = scrollProgress$.subscribe(updateProgressBar);
 
 
