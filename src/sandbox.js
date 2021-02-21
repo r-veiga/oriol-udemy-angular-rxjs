@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
 import { fromEvent, BehaviorSubject, Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, sampleTime, tap } from 'rxjs/operators';
 
 export default () => {
 
@@ -15,30 +15,21 @@ export default () => {
     // 🐷🐷   (a) barra de progreso
     // 🐷🐷   (b) texto que muestre el porcentaje en formato "nn%"
     // 🐷🐷 
-    // 🐷🐷 SUBJECT es un observable con tres propiedades muy útiles: 
-    // 🐷🐷   (1) permite hacer multicast de sus valores hacia varios Observers
-    // 🐷🐷       es, por definición, un Hot Observable
-    // 🐷🐷   (2) es un Observer, además de un Observable
-    // 🐷🐷       tiene los métodos subscribe & pipe, además de next, complete & error
-    // 🐷🐷   (3) actúa como un distribuidor, 
-    // 🐷🐷       emite a todos sus Observers los ítems que recibe como Observer a su vez
-    // 🐷🐷    
-    // 🐷🐷 Un Observable es a priori COLD. 
-    // 🐷🐷 Nota: el operador "share()" permite convertir un Observable en HOT, internamente usa un SUBJECT.   
-    // 🐷🐷    
-    // 🐷🐷 Un BehaviourSubject es un Subject que siempre tiene un estado:
-    // 🐷🐷 o el dado en el constructor o el del último valor emitido.
-
+    // 🐷🐷 "sampleTime( N )" emite el evento más reciente en el último intervalo periódico de N milisegundos
+    
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
-
+    
     // Función Observer para actualizar la anchura de la barra de progreso de la vista/html
     const updateProgressBar = (percentage) => { progressBar.style.width = `${percentage}%`; }
     // Función Observer para actualizar el texto de % de progreso de la vista/html
     const updatePercentageText = (percentage) => { updateDisplay(`${ Math.floor(percentage) } %`); } 
-
+    
     // Observable que devuelve el posicionamiento de scroll (from top) en eventos de scroll
+    // 🐷🐷 con "sampleTime()" evito tratar todos los eventos y así reduzco el gasto de recursos del sistema 
     const scroll$ = fromEvent(document, 'scroll').pipe(
+        tap(evt => console.log("[scroll event]")),          // 🐷🐷 log A TODOS los eventos de scroll disparados
+        sampleTime(50),                                     // 🐷🐷 filtra sólo EL ÚLTIMO evento producido en el intervalo de 50 ms
         map(() => docElement.scrollTop),
         tap(evt => console.log("[scroll]: ", evt))
     );
@@ -51,16 +42,12 @@ export default () => {
         })  
     )
 
-    // 🐷🐷 Dos suscripciones al Subject (⚠️ Hot Observable ⚠️):
-    const scrollProgressHot$ = new BehaviorSubject(0);                           // 🐷🐷 emite el valor 0 como inicial
+    // Dos suscripciones al Subject (⚠️ Hot Observable ⚠️):
+    const scrollProgressHot$ = new BehaviorSubject(0);                           // emite el valor 0 como inicial
     scrollProgress$.subscribe(scrollProgressHot$);                               
     // (1) suscripción a scrollProgress$ para pintar una barra de progreso
     // (2) suscripción a scrollProgress$ para escribir el porcentaje por pantalla
     const subscription1 = scrollProgressHot$.subscribe(updateProgressBar);       
     const subscription2 = scrollProgressHot$.subscribe(updatePercentageText);    
-
-    // 🐷🐷 BehaviorSubject guarda siempre el último valor, 
-    // 🐷🐷 así que lo puedo consultar desde el punto que quiera de mi código 😀
-    console.log("Estado inicial del scroll introducido en el constructor de BehaviorSubject: ", scrollProgressHot$.value);       // 🐷🐷
                                            
 }
