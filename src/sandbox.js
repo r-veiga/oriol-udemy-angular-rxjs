@@ -1,9 +1,14 @@
 import { updateDisplay, displayLog } from './utils';
-import { fromEvent } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { fromEvent, zip } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 export default () => {
-    /** start coding */
+
+    // 🐷🐷 El operador "zip( o1, o2,... oN )" combina múltiples Observables  
+    // 🐷🐷 para crear un Observable cuyos valores, ordenados, son calculados  
+    // 🐷🐷 de los inputs de cada uno de sus Observables de entrada.
+    // 🐷🐷 
+
 
     /** init canvas and context reference  */
     const canvas = document.getElementById('drawboard');
@@ -57,9 +62,18 @@ export default () => {
         }));        
 
 
-    //TODO: draw current line
-
+    // 🐷🐷 dibujar una línea en el canvas
+    const drawLine$ = zip(mouseStart$, mouseEnd$)  // 🐷🐷 
+                        .pipe(
+                            tap(console.log), 
+                            map(([start, end]) => {
+                                return {
+                                    origin: start.coords, 
+                                    end: end.coords
+                                }
+                            })  
+                        );
     
+    drawLine$.subscribe(data => drawLine(data.origin, data.end));
 
-    /** end coding */
 }
